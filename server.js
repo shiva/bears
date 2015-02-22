@@ -7,7 +7,6 @@
 var express    = require('express');        // call express
 var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
-var Bear       = require('./app/models/bear');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -18,6 +17,7 @@ var port = process.env.PORT || 8080;        // set our port
 
 var mongoose   = require('mongoose');
 mongoose.connect('mongodb://bears:bears@ds031617.mongolab.com:31617/bears');
+var Bear       = require('./app/models/bear');
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -40,8 +40,7 @@ router.get('/', function(req, res) {
 // on routes that end in /bears
 // ----------------------------------------------------
 router.route('/bears')
-
-// create a bear (accessed at POST http://localhost:8080/api/bears)
+    // create a bear (accessed at POST http://localhost:8080/api/bears)
     .post(function(req, res) {
         var bear = new Bear();      // create a new instance of the Bear model
         bear.name = req.body.name;  // set the bears name (comes from the request)
@@ -55,7 +54,7 @@ router.route('/bears')
 
     })
 
-// get all the bears (accessed at GET http://localhost:8080/api/bears)
+    // get all the bears (accessed at GET http://localhost:8080/api/bears)
     .get(function(req, res) {
         Bear.find(function(err, bears) {
             if (err) {
@@ -68,16 +67,51 @@ router.route('/bears')
 
 // on routes that end in bears/:bear_id
 router.route('/bears/:bear_id')
+    .all(function(req, res, next) {
+        //console.log('request :');
+        //console.log(req);
+        next();
+    })
+
     // get the bear with specified id
-    .get(function(req, res){
-        console.log(req.param.bear_id)
-        Bear.findById(req.param.bear_id, function(err, bear) {
+    .get(function(req, res, next){
+
+        Bear.findById(req.params.bear_id, function(err, bear) {
             if (err)
                 res.send(err);
             res.json(bear);
-            console.log(bear)
+            console.log(bear);
         });
-    });
+    })
+    .put(function(req, res, next){
+
+        // find the bear, update it and save
+        Bear.findById(req.params.bear_id, function(err, bear) {
+            if (err)
+                res.send(err);
+
+            bear.name = req.body.name;
+
+            bear.save(function(err) {
+                if(err)
+                    res.send(err)
+
+                res.json({message : 'Bear updated!'});
+            });
+        });
+    })
+    .post(function(req, res, next){
+        next(new Error('not implemented'));
+    })
+    .delete(function(req, res, next){
+        Bear.remove({
+            _id: req.params.bear_id
+        }, function(err, bear) {
+            if (err)
+                res.send(err);
+            res.json({message: 'Bear removed!'});
+        });
+    })
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
