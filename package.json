@@ -9,7 +9,6 @@
       "body-parser": "1.x"
   },
   "scripts": {
-    "test": "npm test"
   },
   "repository": {
     "type": "git",
