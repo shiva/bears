@@ -4,9 +4,9 @@
   "description": "A sample express json-api server - CRUD on bears",
   "main": "server.js",
   "dependencies": {
-      "express": "~4.0.0",
-      "mongoose": "~3.6.13",
-      "body-parser": "~1.0.1"
+      "express": "4.2.x",
+      "mongoose": "3.8.x",
+      "body-parser": "1.x"
   },
   "scripts": {
     "test": "npm test"
